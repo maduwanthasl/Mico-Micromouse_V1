@@ -1,0 +1,2 @@
+../Core/Src/get_ir_reading.c:19:10:Read_ADC	32	static
+../Core/Src/get_ir_reading.c:37:6:Get_IR_Readings	8	static

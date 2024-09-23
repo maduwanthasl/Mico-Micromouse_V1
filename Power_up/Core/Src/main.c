@@ -26,6 +26,8 @@
 #include "push_btn_library.h"
 #include "buzzer.h"
 #include "motor_control.h"
+#include "pid_position.h"
+#include "get_ir_reading.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,6 +46,9 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc2;
+
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
@@ -58,121 +63,14 @@ static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_ADC1_Init(void);
+static void MX_ADC2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-uint32_t counter = 0;
-uint32_t count2 = 0;
-volatile uint32_t last_interrupt_time = 0;  // To store the time of the last valid interrupt
-int16_t count = 0;
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef*htim3){
-	counter = __HAL_TIM_GET_COUNTER(htim3);
-	count = (int16_t)counter;
-}
-
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    uint32_t current_time = HAL_GetTick();  // Get current system tick (milliseconds)
-
-    // Check if enough time (e.g., 5ms) has passed since the last interrupt to debounce
-    if (current_time - last_interrupt_time > 2) {
-        count2 += 1;
-        last_interrupt_time = current_time;  // Update the time of the last valid interrupt
-    }
-}
-
-
-// Define the PID controller structure
-typedef struct {
-    float Kp;              // Proportional gain
-    float Ki;              // Integral gain
-    float Kd;              // Derivative gain
-    float setpoint;        // Target count value
-    float integral;        // Integral term accumulator
-    float previous_error;  // Error from the previous loop iteration
-} PID_Controller;
-
-// Initialize the PID controller
-void PID_Init(PID_Controller *pid, float Kp, float Ki, float Kd, float setpoint) {
-    pid->Kp = Kp;
-    pid->Ki = Ki;
-    pid->Kd = Kd;
-    pid->setpoint = setpoint;
-    pid->integral = 0.0f;
-    pid->previous_error = 0.0f;
-}
-
-
-
-// Define PID controller instance and constants
-PID_Controller pid;
-#define ERROR 10
-#define TARGET_POS 200
-#define TARGET_COUNT (TARGET_POS + ERROR)   // Target encoder count
-#define PID_KP 0.2f          // Proportional gain (adjust as needed)
-#define PID_KI 0.005f         // Integral gain (adjust as needed)
-#define PID_KD 0.05f         // Derivative gain (adjust as needed)
-
-float control_signal;
-
-// Compute the PID output
-float PID_Update(PID_Controller *pid, float current_value) {
-    float error = pid->setpoint - current_value;  // Calculate the current error
-
-    // Integral term with windup guard (limiting integral buildup)
-    pid->integral += error;
-    if (pid->integral > 1000) pid->integral = 1000;  // Clamp integral term
-    if (pid->integral < -1000) pid->integral = -1000;
-
-    float derivative = error - pid->previous_error;  // Calculate derivative term
-
-    // Calculate the control signal (output)
-    float output = pid->Kp * error + pid->Ki * pid->integral + pid->Kd * derivative;
-
-    pid->previous_error = error;  // Store the current error for the next loop
-
-    return output;  // Return the control signal
-}
-
-
-float control_signal;
-
-// Adjusted motor control loop with PID and overshoot correction
-void motor_control_loop_with_pid(void) {
-    // Initialize the PID controller with gains and target count
-    PID_Init(&pid, PID_KP, PID_KI, PID_KD, TARGET_COUNT);
-
-    while (1) {
-        // 'count' is the current encoder count, updated in the callback
-        control_signal = PID_Update(&pid, (float)count);  // Calculate the control signal based on the count
-
-        // If the target count hasn't been reached yet
-        if (count < TARGET_COUNT) {
-            // Clamp control signal within a valid range for PWM (0 to 100 for motor speed)
-            if (control_signal > 20) control_signal = 20;
-            if (control_signal < -20) control_signal = -20;
-            if ((count <= TARGET_COUNT) && (count > TARGET_POS)){
-            	count = 0;
-    			stop();   //Stop the motor
-    			HAL_Delay(50);
-    			HAL_GPIO_WritePin(LED_SPD_GPIO_Port, LED_SPD_Pin, GPIO_PIN_SET);  // Turn on an LED to indicate the stop
-    			break;  // Exit the loop
-            }
-            // Adjust motor speed based on the PID output (control_signal)
-            if (control_signal > 0) {
-                forward((uint8_t)control_signal, (uint8_t)control_signal);  // Move forward
-            } else {
-                backward((uint8_t)(-control_signal), (uint8_t)(-control_signal));  // Move backward
-            }
-        }
-        HAL_Delay(10);  // Add a small delay to avoid overloading the CPU
-    }
-
-}
 
 
 /* USER CODE END 0 */
@@ -209,6 +107,8 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM4_Init();
   MX_TIM3_Init();
+  MX_ADC1_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(LED_PWR_GPIO_Port, LED_PWR_Pin, GPIO_PIN_SET);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
@@ -228,24 +128,14 @@ int main(void)
   {
     // Check if push button is pressed (adjust logic based on pull-up/pull-down configuration)
 	  push_btn(PUSH_BTN2_GPIO_Port, PUSH_BTN2_Pin, LED_COM_GPIO_Port, LED_COM_Pin);
-	  motor_control_loop_with_pid();
+//	  motor_control_loop_with_pid();
     /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
-    // forward motor control
-	// Check if count reaches the stopping point (-200)
-//	  while (count > -200) {
-//	      backward(15, 15);  // Move forward
-//	      // Assuming 'count' is updated elsewhere based on encoder feedback
-//	  }
-//
-//	  // Once count reaches -200, stop the motor
-////	  __HAL_TIM_SET_COUNTER(&htim3, 0);
-//	  HAL_GPIO_WritePin(LED_COM_GPIO_Port, LED_COM_Pin, GPIO_PIN_SET);
-//	  count = 0;
-//	  stop();
-//	  HAL_Delay(10);
+	    Get_IR_Readings();  // Get the IR readings and print them
+	    HAL_Delay(100);     // Add a delay to avoid overloading the CPU
 
+
+    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
@@ -258,6 +148,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -287,6 +178,106 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Common config
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.NbrOfConversion = 1;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief ADC2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC2_Init(void)
+{
+
+  /* USER CODE BEGIN ADC2_Init 0 */
+
+  /* USER CODE END ADC2_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC2_Init 1 */
+
+  /* USER CODE END ADC2_Init 1 */
+
+  /** Common config
+  */
+  hadc2.Instance = ADC2;
+  hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc2.Init.ContinuousConvMode = DISABLE;
+  hadc2.Init.DiscontinuousConvMode = DISABLE;
+  hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc2.Init.NbrOfConversion = 1;
+  if (HAL_ADC_Init(&hadc2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC2_Init 2 */
+
+  /* USER CODE END ADC2_Init 2 */
+
 }
 
 /**
@@ -487,7 +478,7 @@ static void MX_GPIO_Init(void)
                           |LED_SPD_Pin|LED_COM_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED_PWR_GPIO_Port, LED_PWR_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LF_EMMITER_Pin|D_EMMITER_Pin|RF_EMMITER_Pin|LED_PWR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : LMF_Pin LMB_Pin RMF_Pin RMB_Pin
                            LED_SPD_Pin LED_COM_Pin */
@@ -504,12 +495,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(ENA_RM_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LED_PWR_Pin */
-  GPIO_InitStruct.Pin = LED_PWR_Pin;
+  /*Configure GPIO pins : LF_EMMITER_Pin D_EMMITER_Pin RF_EMMITER_Pin LED_PWR_Pin */
+  GPIO_InitStruct.Pin = LF_EMMITER_Pin|D_EMMITER_Pin|RF_EMMITER_Pin|LED_PWR_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED_PWR_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PUSH_BTN_Pin */
   GPIO_InitStruct.Pin = PUSH_BTN_Pin;

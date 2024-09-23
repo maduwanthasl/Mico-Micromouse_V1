@@ -59,16 +59,30 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LF_RECEIVER_Pin GPIO_PIN_0
+#define LF_RECEIVER_GPIO_Port GPIOA
+#define LD_RECEIVER_Pin GPIO_PIN_1
+#define LD_RECEIVER_GPIO_Port GPIOA
 #define LMF_Pin GPIO_PIN_2
 #define LMF_GPIO_Port GPIOA
 #define LMB_Pin GPIO_PIN_3
 #define LMB_GPIO_Port GPIOA
+#define RD_RECEIVER_Pin GPIO_PIN_4
+#define RD_RECEIVER_GPIO_Port GPIOA
+#define RF_RECEIVER_Pin GPIO_PIN_5
+#define RF_RECEIVER_GPIO_Port GPIOA
 #define RMF_Pin GPIO_PIN_6
 #define RMF_GPIO_Port GPIOA
 #define RMB_Pin GPIO_PIN_7
 #define RMB_GPIO_Port GPIOA
 #define ENA_RM_Pin GPIO_PIN_0
 #define ENA_RM_GPIO_Port GPIOB
+#define LF_EMMITER_Pin GPIO_PIN_12
+#define LF_EMMITER_GPIO_Port GPIOB
+#define D_EMMITER_Pin GPIO_PIN_13
+#define D_EMMITER_GPIO_Port GPIOB
+#define RF_EMMITER_Pin GPIO_PIN_14
+#define RF_EMMITER_GPIO_Port GPIOB
 #define LED_PWR_Pin GPIO_PIN_15
 #define LED_PWR_GPIO_Port GPIOB
 #define LED_SPD_Pin GPIO_PIN_8
