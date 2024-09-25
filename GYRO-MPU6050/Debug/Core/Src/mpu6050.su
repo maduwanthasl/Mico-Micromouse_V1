@@ -1,0 +1,8 @@
+../Core/Src/mpu6050.c:32:6:mpu6050Init	24	static
+../Core/Src/mpu6050.c:44:6:mpu6050powerOn	24	static
+../Core/Src/mpu6050.c:57:6:mpu6050Sampling	24	static
+../Core/Src/mpu6050.c:70:6:mpu6050GyroScale	32	static
+../Core/Src/mpu6050.c:83:6:mpu6050AccelScale	32	static
+../Core/Src/mpu6050.c:96:6:mpu6050Config	8	static
+../Core/Src/mpu6050.c:112:6:mpu6050GyroRead	32	static
+../Core/Src/mpu6050.c:133:6:mpu6050AccelRead	32	static
