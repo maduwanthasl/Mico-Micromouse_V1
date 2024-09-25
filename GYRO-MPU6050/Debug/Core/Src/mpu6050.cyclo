@@ -1,8 +1,5 @@
-../Core/Src/mpu6050.c:32:6:mpu6050Init	1
-../Core/Src/mpu6050.c:44:6:mpu6050powerOn	1
-../Core/Src/mpu6050.c:57:6:mpu6050Sampling	1
-../Core/Src/mpu6050.c:70:6:mpu6050GyroScale	1
-../Core/Src/mpu6050.c:83:6:mpu6050AccelScale	1
-../Core/Src/mpu6050.c:96:6:mpu6050Config	2
-../Core/Src/mpu6050.c:112:6:mpu6050GyroRead	1
-../Core/Src/mpu6050.c:133:6:mpu6050AccelRead	1
+../Core/Src/mpu6050.c:16:6:MPU6050_Init	2
+../Core/Src/mpu6050.c:37:6:MPU6050_Read_GyroZ	1
+../Core/Src/mpu6050.c:44:6:MPU6050_CalibrateGyro	2
+../Core/Src/mpu6050.c:56:7:gyro_loop	3
+../Core/Src/mpu6050.c:81:6:delayMicroseconds	2

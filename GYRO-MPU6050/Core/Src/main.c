@@ -89,8 +89,10 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C2_Init();
+
   /* USER CODE BEGIN 2 */
-  mpu6050Config();
+  MPU6050_Init();
+  MPU6050_CalibrateGyro();
 
   /* USER CODE END 2 */
 
@@ -99,9 +101,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  mpu6050GyroRead();
-	  mpu6050AccelRead();
-	  HAL_Delay(200);
+	  gyro_loop();
 
     /* USER CODE BEGIN 3 */
   }

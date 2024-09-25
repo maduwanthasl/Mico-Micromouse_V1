@@ -8,145 +8,79 @@
 
 #include "mpu6050.h"
 
-// Define the variables that were declared as extern
-uint8_t whoAreYou = 0;
-uint8_t MemData = 0;
+float gyroCalibrationFactor = 0.0f;
+float gyroDegree = 0.0f;
+int isFirstLoopComplete = 0;
+uint32_t previousTime = 0;
 
-int16_t RAWgyroX = 0;
-int16_t RAWgyroY = 0;
-int16_t RAWgyroZ = 0;
+void MPU6050_Init(void) {
+    uint8_t check;
+    uint8_t data;
 
-int16_t RAWaccelX = 0;
-int16_t RAWaccelY = 0;
-int16_t RAWaccelZ = 0;
+    // Check if MPU6050 is connected
+    HAL_I2C_Mem_Read(&hi2c2, MPU6050_ADDR, WHO_AM_I_REG, 1, &check, 1, 1000);
+    if (check == 0x68) {
+        // Wake up MPU6050
+        data = 0x00;
+        HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, PWR_MGMT_1_REG, 1, &data, 1, 1000);
 
-float Ax = 0;
-float Ay = 0;
-float Az = 0;
+        // Set gyro configuration, full scale = ±250 degree/sec
+        data = 0x00;
+        HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, GYRO_CONFIG_REG, 1, &data, 1, 1000);
 
-float Gx = 0;
-float Gy = 0;
-float Gz = 0;
-
-
-void mpu6050Init(void){
-	HAL_I2C_Mem_Read(
-				&hi2c2,
-				mpu6050addr,
-				whoAmIReg,
-				1,
-				&whoAreYou,
-				1,
-				100
-				);
+        // Set accelerometer configuration, full scale = ±2g
+        data = 0x00;
+        HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, ACCEL_CONFIG_REG, 1, &data, 1, 1000);
+    }
 }
 
-void mpu6050powerOn(void){
-	MemData = 0x00;
-	HAL_I2C_Mem_Write(
-			&hi2c2,
-			mpu6050addr,
-			powerManagmentReg,
-			1,
-			&MemData,
-			1,
-			100
-			);
+void MPU6050_Read_GyroZ(int16_t *gyroZ) {
+    uint8_t data[2];
+    HAL_I2C_Mem_Read(&hi2c2, MPU6050_ADDR, GYRO_ZOUT_H, 1, data, 2, 1000);
+
+    *gyroZ = (int16_t)(data[0] << 8 | data[1]);
 }
 
-void mpu6050Sampling(void){
-	MemData = 0x07;
-	HAL_I2C_Mem_Write(
-			&hi2c2,
-			mpu6050addr,
-			sampleRateDiv,
-			1,
-			&MemData,
-			1,
-			100
-			);
+void MPU6050_CalibrateGyro(void) {
+    // Calibrate gyro here by taking multiple readings and averaging
+    int32_t sum = 0;
+    int16_t gyroZ;
+    for (int i = 0; i < 1000; i++) {
+        MPU6050_Read_GyroZ(&gyroZ);
+        sum += gyroZ;
+        HAL_Delay(1);
+    }
+    gyroCalibrationFactor = sum / 1000.0;
 }
 
-void mpu6050GyroScale(gyroScale_t scale){
-	MemData = 0x00 | (scale << 3);
-		HAL_I2C_Mem_Write(
-			&hi2c2,
-			mpu6050addr,
-			gyroConf,
-			1,
-			&MemData,
-			1,
-			100
-			);
+float gyro_loop(void) {
+    int16_t gyroZRaw;
+    MPU6050_Read_GyroZ(&gyroZRaw);
+
+    // Adjust for calibration and apply the calibration factor
+    float gyroZ = (gyroZRaw - gyroCalibrationFactor) / 131.0f;
+
+    // Calculate time difference
+    uint32_t currentTime = HAL_GetTick(); // Get current tick (ms)
+    float timeForOneLoop = (currentTime - previousTime) * 0.001f; // Convert ms to seconds
+
+    // Update degree based on gyroscope reading
+    if (isFirstLoopComplete) {
+        gyroDegree += gyroZ * timeForOneLoop; // Calculate degree change
+    }
+
+    previousTime = currentTime;
+
+    if (!isFirstLoopComplete) {
+        isFirstLoopComplete = true;
+    }
+
+    return gyroDegree;
 }
 
-void mpu6050AccelScale(accelScale_t scale){
-	MemData = 0x00 | (scale << 3);
-		HAL_I2C_Mem_Write(
-			&hi2c2,
-			mpu6050addr,
-			accelConf,
-			1,
-			&MemData,
-			1,
-			100
-			);
-}
-
-void mpu6050Config(void){
-	// is valid Condition true 0x68
-	mpu6050Init();
-
-	if(validCondition1){
-	// power on
-		mpu6050powerOn();
-	// sampling data ratio
-		mpu6050Sampling();
-	// gyro scale   (RAW)
-		mpu6050GyroScale(degS250);
-	// accel scale  (RAW)
-		mpu6050AccelScale(g2);
-	}
-}
-
-void mpu6050GyroRead(void){
-	uint8_t gyroData[6];
-	HAL_I2C_Mem_Read(
-			&hi2c2,
-			mpu6050addr,
-			gyroMeasure,
-			1,
-			gyroData,
-			6,
-			100
-			);
-
-	RAWgyroX = (uint16_t) (gyroData[0] << 8 | gyroData[1]);
-	RAWgyroY = (uint16_t) (gyroData[2] << 8 | gyroData[3]);
-	RAWgyroZ = (uint16_t) (gyroData[4] << 8 | gyroData[5]);
-
-	Gx = RAWgyroX/131.0;
-	Gy = RAWgyroY/131.0;
-	Gz = RAWgyroZ/131.0;
-}
-
-void mpu6050AccelRead(void){
-	uint8_t accelData[6];
-	HAL_I2C_Mem_Read(
-			&hi2c2,
-			mpu6050addr,
-			accelMeasure,
-			1,
-			accelData,
-			6,
-			100
-			);
-
-	RAWaccelX = (uint16_t) (accelData[0] << 8 | accelData[1]);
-	RAWaccelY = (uint16_t) (accelData[2] << 8 | accelData[3]);
-	RAWaccelZ = (uint16_t) (accelData[4] << 8 | accelData[5]);
-
-	Ax = RAWaccelX/16384.0;
-	Ay = RAWaccelY/16384.0;
-	Az = RAWaccelZ/16384.0;
+void delayMicroseconds(uint32_t micros) {
+    uint32_t start = HAL_GetTick();
+    while ((HAL_GetTick() - start) < (micros / 1000)) {
+        // Wait
+    }
 }
