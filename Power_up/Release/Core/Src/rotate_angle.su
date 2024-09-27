@@ -1,0 +1,2 @@
+../Core/Src/rotate_angle.c:19:6:Rotate_PID_Init	0	static
+../Core/Src/rotate_angle.c:28:6:rotate	56	static

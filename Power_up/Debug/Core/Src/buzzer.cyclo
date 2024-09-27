@@ -1,1 +1,3 @@
 ../Core/Src/buzzer.c:22:6:buzzer_power_up_tone	3
+../Core/Src/buzzer.c:42:6:buzzer_tone_0	3
+../Core/Src/buzzer.c:60:6:buzzer_tone_1	3

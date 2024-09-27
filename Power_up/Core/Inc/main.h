@@ -59,6 +59,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LED_RD_Pin GPIO_PIN_14
+#define LED_RD_GPIO_Port GPIOC
+#define LED_LD_Pin GPIO_PIN_15
+#define LED_LD_GPIO_Port GPIOC
 #define LF_RECEIVER_Pin GPIO_PIN_0
 #define LF_RECEIVER_GPIO_Port GPIOA
 #define LD_RECEIVER_Pin GPIO_PIN_1
@@ -77,6 +81,10 @@ void Error_Handler(void);
 #define RMB_GPIO_Port GPIOA
 #define ENA_RM_Pin GPIO_PIN_0
 #define ENA_RM_GPIO_Port GPIOB
+#define SCL_GYRO_Pin GPIO_PIN_10
+#define SCL_GYRO_GPIO_Port GPIOB
+#define SDA_GYRO_Pin GPIO_PIN_11
+#define SDA_GYRO_GPIO_Port GPIOB
 #define LF_EMMITER_Pin GPIO_PIN_12
 #define LF_EMMITER_GPIO_Port GPIOB
 #define D_EMMITER_Pin GPIO_PIN_13
@@ -89,8 +97,14 @@ void Error_Handler(void);
 #define LED_SPD_GPIO_Port GPIOA
 #define LED_COM_Pin GPIO_PIN_9
 #define LED_COM_GPIO_Port GPIOA
+#define LED_FAN_Pin GPIO_PIN_11
+#define LED_FAN_GPIO_Port GPIOA
 #define PUSH_BTN_Pin GPIO_PIN_12
 #define PUSH_BTN_GPIO_Port GPIOA
+#define LED_RF_Pin GPIO_PIN_15
+#define LED_RF_GPIO_Port GPIOA
+#define LED_LF_Pin GPIO_PIN_3
+#define LED_LF_GPIO_Port GPIOB
 #define ENA_LM_Pin GPIO_PIN_4
 #define ENA_LM_GPIO_Port GPIOB
 #define ENB_LM_Pin GPIO_PIN_5

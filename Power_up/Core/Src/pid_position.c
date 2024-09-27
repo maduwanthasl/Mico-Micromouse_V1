@@ -1,9 +1,4 @@
-/*
- * pid_position.c
- *
- *  Created on: Sep 23, 2024
- *      Author: Ama
- */
+
 
 /*
  * pid_position.c
@@ -67,6 +62,7 @@ float PID_Update(PID_Controller *pid, float current_value) {
 
 // Define PID controller instance
 PID_Controller pid;
+IR_Control_PIDController ir_control_pid_instance;
 
 #define ERROR 10
 #define TARGET_POS 200
@@ -81,9 +77,13 @@ float control_signal;
 // Motor control loop with PID and overshoot correction
 void motor_control_loop_with_pid(void) {
     PID_Init(&pid, PID_KP, PID_KI, PID_KD, TARGET_COUNT);
+    ir_control_pid_init(&ir_control_pid_instance,0.05f,0.00f,0.01f);
 
     while (1) {
+    	Get_IR_Readings();
         control_signal = PID_Update(&pid, (float)count);  // Get control signal from PID
+        ir_control_output = ir_control_pid_function(&ir_control_pid_instance, LD_reading, RD_reading, LD_min, RD_min);
+
 
         if (count < TARGET_COUNT) {
             // Clamp control signal for PWM
@@ -100,7 +100,7 @@ void motor_control_loop_with_pid(void) {
 
             // Adjust motor speed based on control signal
             if (control_signal > 0) {
-                forward((uint8_t)control_signal, (uint8_t)control_signal);  // Move forward
+                forward(((uint8_t)control_signal + ir_control_output), ((uint8_t)control_signal - ir_control_output));  // Move forward
             } else {
                 backward((uint8_t)(-control_signal), (uint8_t)(-control_signal));  // Move backward
             }
@@ -108,3 +108,41 @@ void motor_control_loop_with_pid(void) {
         HAL_Delay(10);  // Prevent CPU overload
     }
 }
+
+
+// Initialize PID controller
+void ir_control_pid_init(IR_Control_PIDController *ir_control_pid, float Kp, float Ki, float Kd) {
+	ir_control_pid->Kp = Kp;
+	ir_control_pid->Ki = Ki;
+	ir_control_pid->Kd = Kd;
+	ir_control_pid->previous_error = 0.0f;
+	ir_control_pid->integral = 0.0f;
+}
+
+float ir_control_error;
+
+// PID control function based on LD and RD readings
+float ir_control_pid_function(IR_Control_PIDController *ir_control_pid, uint16_t LD_reading, uint16_t RD_reading, uint16_t LD_min, uint16_t RD_min) {
+
+    // Find the maximum of LD_reading and RD_reading
+    if (LD_reading > RD_reading) {
+        // Calculate error as LD_reading - LD_min
+    	ir_control_error = LD_reading - LD_min;
+    } else {
+        // Calculate error as RD_reading - RD_min (you can add RD_min if required)
+    	ir_control_error = RD_reading - RD_min; // You can change this depending on your logic
+    }
+
+    // PID calculations
+    ir_control_pid->integral += ir_control_error; // Accumulate integral
+    float derivative = ir_control_error - ir_control_pid->previous_error; // Calculate derivative
+    ir_control_output = (ir_control_pid->Kp * ir_control_error) + (ir_control_pid->Ki * ir_control_pid->integral) + (ir_control_pid->Kd * derivative); // PID formula
+
+    // Store current error for next iteration
+    ir_control_pid->previous_error = ir_control_error;
+
+    // Return the PID output
+    if (LD_reading < RD_reading) ir_control_output -=ir_control_output;
+    return (ir_control_output/12);
+}
+

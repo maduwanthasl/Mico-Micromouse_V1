@@ -15,8 +15,9 @@ extern TIM_HandleTypeDef htim4;  // Declare the correct timer handle as extern
 
 void forward(uint16_t lm, uint16_t rm);
 void backward(uint16_t lm, uint16_t rm);
-void left_90(uint16_t lm, uint16_t rm);
-void right_90(uint16_t lm, uint16_t rm);
+void turn_90(uint16_t lm, uint16_t rm);
+void turn_180(uint16_t lm, uint16_t rm);
+void turn_270(uint16_t lm, uint16_t rm);
 void stop();
 
 #endif /* INC_MOTOR_CONTROL_H_ */

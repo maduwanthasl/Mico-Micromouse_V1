@@ -1,0 +1,6 @@
+../Core/Src/motor_control.c:12:6:forward	24	static
+../Core/Src/motor_control.c:24:6:backward	24	static
+../Core/Src/motor_control.c:36:6:turn_90	24	static
+../Core/Src/motor_control.c:48:6:turn_180	0	static
+../Core/Src/motor_control.c:60:6:turn_270	24	static
+../Core/Src/motor_control.c:71:6:stop	8	static

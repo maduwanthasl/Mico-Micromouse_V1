@@ -1,0 +1,6 @@
+../Core/Src/mpu6050.c:17:6:MPU6050_Init	2
+../Core/Src/mpu6050.c:38:6:MPU6050_Read_GyroZ	1
+../Core/Src/mpu6050.c:45:6:MPU6050_CalibrateGyro	2
+../Core/Src/mpu6050.c:61:7:gyro_loop	2
+../Core/Src/mpu6050.c:86:6:delayMicroseconds	2
+../Core/Src/mpu6050.c:93:6:ResetGyroDegree	1

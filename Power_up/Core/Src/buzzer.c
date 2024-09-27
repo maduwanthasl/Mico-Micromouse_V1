@@ -39,3 +39,38 @@ void buzzer_power_up_tone(){
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
 }
 
+void buzzer_tone_0() {
+	    for (int i = 0; i < 1; i++) {
+	        if (melody[i] == 0) {
+	            // Pause for a rest
+	            __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+	        } else {
+	            // Calculate the compare value for the desired frequency
+	            uint32_t compareValue = (90000 / melody[i]) - 1;
+	            __HAL_TIM_SET_AUTORELOAD(&htim1, compareValue);
+	            __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, compareValue / 2); // Adjust duty cycle for better sound
+	        }
+	        HAL_Delay(noteDurations[i]);
+	    }
+
+	    // Silence the buzzer after the melody
+	    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+}
+
+void buzzer_tone_1() {
+	    for (int i = 0; i < 3; i++) {
+	        if (melody[i] == 0) {
+	            // Pause for a rest
+	            __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+	        } else {
+	            // Calculate the compare value for the desired frequency
+	            uint32_t compareValue = (90000 / melody[i]) - 1;
+	            __HAL_TIM_SET_AUTORELOAD(&htim1, compareValue);
+	            __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, compareValue / 2); // Adjust duty cycle for better sound
+	        }
+	        HAL_Delay(noteDurations[i]);
+	    }
+
+	    // Silence the buzzer after the melody
+	    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+}

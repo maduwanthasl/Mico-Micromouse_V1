@@ -13,5 +13,7 @@
 extern TIM_HandleTypeDef htim1; // Declare `htim1` as extern
 
 void buzzer_power_up_tone();
+void buzzer_tone_0();
+void buzzer_tone_1();
 
 #endif /* INC_BUZZER_H_ */

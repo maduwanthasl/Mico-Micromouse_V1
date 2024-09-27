@@ -23,11 +23,14 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <math.h>
+#include "variables.h"
 #include "push_btn_library.h"
 #include "buzzer.h"
 #include "motor_control.h"
 #include "pid_position.h"
 #include "get_ir_reading.h"
+#include "mpu6050.h"
+#include "rotate_angle.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +52,8 @@
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 
+I2C_HandleTypeDef hi2c2;
+
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
@@ -65,14 +70,13 @@ static void MX_TIM4_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
+static void MX_I2C2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-
 /* USER CODE END 0 */
 
 /**
@@ -109,6 +113,7 @@ int main(void)
   MX_TIM3_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(LED_PWR_GPIO_Port, LED_PWR_Pin, GPIO_PIN_SET);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
@@ -120,6 +125,13 @@ int main(void)
   buzzer_power_up_tone();
 
   __HAL_TIM_SET_COUNTER(&htim3, 0); // Reset the counter
+  Calibrate_IR_Sensors();
+  HAL_Delay(2000);
+  MPU6050_Init();
+  MPU6050_CalibrateGyro();
+  HAL_Delay(2000);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -130,9 +142,18 @@ int main(void)
 	  push_btn(PUSH_BTN2_GPIO_Port, PUSH_BTN2_Pin, LED_COM_GPIO_Port, LED_COM_Pin);
 //	  motor_control_loop_with_pid();
     /* USER CODE END WHILE */
+	  float rotate_error_1 = rotate_error;
+	  float currentAngle_1 = currentAngle;
 
-	    Get_IR_Readings();  // Get the IR readings and print them
-	    HAL_Delay(100);     // Add a delay to avoid overloading the CPU
+	  motor_control_loop_with_pid();
+//	  rotate(90,20,20);
+//	  ResetGyroDegree();
+//	  rotate(-90,20,20);
+//	  ResetGyroDegree();
+//	  rotate(180,20,20);
+//	  ResetGyroDegree();
+
+
 
 
     /* USER CODE BEGIN 3 */
@@ -277,6 +298,40 @@ static void MX_ADC2_Init(void)
   /* USER CODE BEGIN ADC2_Init 2 */
 
   /* USER CODE END ADC2_Init 2 */
+
+}
+
+/**
+  * @brief I2C2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C2_Init(void)
+{
+
+  /* USER CODE BEGIN I2C2_Init 0 */
+
+  /* USER CODE END I2C2_Init 0 */
+
+  /* USER CODE BEGIN I2C2_Init 1 */
+
+  /* USER CODE END I2C2_Init 1 */
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.ClockSpeed = 400000;
+  hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C2_Init 2 */
+
+  /* USER CODE END I2C2_Init 2 */
 
 }
 
@@ -469,21 +524,33 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LMF_Pin|LMB_Pin|RMF_Pin|RMB_Pin
-                          |LED_SPD_Pin|LED_COM_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, LED_RD_Pin|LED_LD_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LF_EMMITER_Pin|D_EMMITER_Pin|RF_EMMITER_Pin|LED_PWR_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LMF_Pin|LMB_Pin|RMF_Pin|RMB_Pin
+                          |LED_SPD_Pin|LED_COM_Pin|LED_FAN_Pin|LED_RF_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, LF_EMMITER_Pin|D_EMMITER_Pin|RF_EMMITER_Pin|LED_PWR_Pin
+                          |LED_LF_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : LED_RD_Pin LED_LD_Pin */
+  GPIO_InitStruct.Pin = LED_RD_Pin|LED_LD_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LMF_Pin LMB_Pin RMF_Pin RMB_Pin
-                           LED_SPD_Pin LED_COM_Pin */
+                           LED_SPD_Pin LED_COM_Pin LED_FAN_Pin LED_RF_Pin */
   GPIO_InitStruct.Pin = LMF_Pin|LMB_Pin|RMF_Pin|RMB_Pin
-                          |LED_SPD_Pin|LED_COM_Pin;
+                          |LED_SPD_Pin|LED_COM_Pin|LED_FAN_Pin|LED_RF_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -495,8 +562,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(ENA_RM_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LF_EMMITER_Pin D_EMMITER_Pin RF_EMMITER_Pin LED_PWR_Pin */
-  GPIO_InitStruct.Pin = LF_EMMITER_Pin|D_EMMITER_Pin|RF_EMMITER_Pin|LED_PWR_Pin;
+  /*Configure GPIO pins : LF_EMMITER_Pin D_EMMITER_Pin RF_EMMITER_Pin LED_PWR_Pin
+                           LED_LF_Pin */
+  GPIO_InitStruct.Pin = LF_EMMITER_Pin|D_EMMITER_Pin|RF_EMMITER_Pin|LED_PWR_Pin
+                          |LED_LF_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
