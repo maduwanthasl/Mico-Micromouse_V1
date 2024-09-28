@@ -29,7 +29,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/variables.h ../Core/Inc/push_btn_library.h \
  ../Core/Inc/buzzer.h ../Core/Inc/motor_control.h ../Core/Inc/main.h \
  ../Core/Inc/pid_position.h ../Core/Inc/variables.h \
- ../Core/Inc/get_ir_reading.h ../Core/Inc/buzzer.h ../Core/Inc/mpu6050.h \
+ ../Core/Inc/get_ir_reading.h ../Core/Inc/buzzer.h \
+ ../Core/Inc/get_ir_reading.h ../Core/Inc/mpu6050.h \
  ../Core/Inc/rotate_angle.h ../Core/Inc/motor_control.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
@@ -68,6 +69,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/variables.h:
 ../Core/Inc/get_ir_reading.h:
 ../Core/Inc/buzzer.h:
+../Core/Inc/get_ir_reading.h:
 ../Core/Inc/mpu6050.h:
 ../Core/Inc/rotate_angle.h:
 ../Core/Inc/motor_control.h:

@@ -25,4 +25,6 @@ extern uint16_t RF_min, RF_max;
 // Declare the control output variable
 extern float ir_control_output;
 
+extern uint32_t counter;
+
 #endif // VARIABLES_H

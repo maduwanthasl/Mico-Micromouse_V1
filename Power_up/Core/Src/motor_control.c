@@ -11,7 +11,7 @@
 // Function to move forward
 void forward(uint16_t lm, uint16_t rm) {
     lm = lm * 6;  // Scale PWM value
-    rm = rm * 6.18;  // Scale PWM value
+    rm = rm * 6.55;  // Scale PWM value
     HAL_GPIO_WritePin(LMF_GPIO_Port, LMF_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(RMF_GPIO_Port, RMF_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(LMB_GPIO_Port, LMB_Pin, GPIO_PIN_RESET);
@@ -23,7 +23,7 @@ void forward(uint16_t lm, uint16_t rm) {
 // Function to move backward
 void backward(uint16_t lm, uint16_t rm) {
     lm = lm * 6;  // Scale PWM value
-    rm = rm * 6.18;  // Scale PWM value
+    rm = rm * 6.55;  // Scale PWM value
     HAL_GPIO_WritePin(LMF_GPIO_Port, LMF_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(RMF_GPIO_Port, RMF_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LMB_GPIO_Port, LMB_Pin, GPIO_PIN_SET);
@@ -35,7 +35,7 @@ void backward(uint16_t lm, uint16_t rm) {
 //turn right
 void turn_90(uint16_t lm, uint16_t rm) {
     lm = lm * 6;  // Scale PWM value
-    rm = rm * 6.18;  // Scale PWM value
+    rm = rm * 6.55;  // Scale PWM value
     HAL_GPIO_WritePin(LMF_GPIO_Port, LMF_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(RMF_GPIO_Port, RMF_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LMB_GPIO_Port, LMB_Pin, GPIO_PIN_RESET);
@@ -47,7 +47,7 @@ void turn_90(uint16_t lm, uint16_t rm) {
 //turn back
 void turn_180(uint16_t lm, uint16_t rm) {
     lm = lm * 6;  // Scale PWM value
-    rm = rm * 6.18;  // Scale PWM value
+    rm = rm * 6.5;  // Scale PWM value
     HAL_GPIO_WritePin(LMF_GPIO_Port, LMF_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(RMF_GPIO_Port, RMF_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LMB_GPIO_Port, LMB_Pin, GPIO_PIN_RESET);
@@ -59,7 +59,7 @@ void turn_180(uint16_t lm, uint16_t rm) {
 //turn left
 void turn_270(uint16_t lm, uint16_t rm) {
     lm = lm * 6;  // Scale PWM value
-    rm = rm * 6.18;  // Scale PWM value
+    rm = rm * 6.55;  // Scale PWM value
     HAL_GPIO_WritePin(LMF_GPIO_Port, LMF_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(RMF_GPIO_Port, RMF_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(LMB_GPIO_Port, LMB_Pin, GPIO_PIN_SET);

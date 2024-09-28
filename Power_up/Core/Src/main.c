@@ -125,11 +125,12 @@ int main(void)
   buzzer_power_up_tone();
 
   __HAL_TIM_SET_COUNTER(&htim3, 0); // Reset the counter
+
   Calibrate_IR_Sensors();
-  HAL_Delay(2000);
-  MPU6050_Init();
-  MPU6050_CalibrateGyro();
-  HAL_Delay(2000);
+//  HAL_Delay(2000);
+//  MPU6050_Init();
+//  MPU6050_CalibrateGyro();
+//  HAL_Delay(2000);
 
 
   /* USER CODE END 2 */
@@ -138,23 +139,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+//	  __HAL_TIM_SET_COUNTER(&htim3, 0); // Reset the counter
     // Check if push button is pressed (adjust logic based on pull-up/pull-down configuration)
 	  push_btn(PUSH_BTN2_GPIO_Port, PUSH_BTN2_Pin, LED_COM_GPIO_Port, LED_COM_Pin);
-//	  motor_control_loop_with_pid();
-    /* USER CODE END WHILE */
-	  float rotate_error_1 = rotate_error;
-	  float currentAngle_1 = currentAngle;
-
+	  Get_IR_Readings();
 	  motor_control_loop_with_pid();
-//	  rotate(90,20,20);
-//	  ResetGyroDegree();
-//	  rotate(-90,20,20);
-//	  ResetGyroDegree();
-//	  rotate(180,20,20);
-//	  ResetGyroDegree();
-
-
-
+    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }

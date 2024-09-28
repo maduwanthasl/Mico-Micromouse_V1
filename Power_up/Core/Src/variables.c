@@ -20,5 +20,7 @@ uint16_t LD_min = 0xFFFF, LD_max = 0;
 uint16_t RD_min = 0xFFFF, RD_max = 0;
 uint16_t RF_min = 0xFFFF, RF_max = 0;
 
+uint32_t counter = 0;
+
 // Define the control output variable
-float ir_control_output = 0.0f;
+float ir_control_output;

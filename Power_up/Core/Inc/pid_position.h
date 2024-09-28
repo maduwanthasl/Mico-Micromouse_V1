@@ -11,6 +11,8 @@
 #include "stm32f1xx_hal.h"  // For HAL functions
 #include <motor_control.h>
 #include "variables.h"
+#include "get_ir_reading.h"
+#include "main.h"
 
 // PID controller structure
 typedef struct {

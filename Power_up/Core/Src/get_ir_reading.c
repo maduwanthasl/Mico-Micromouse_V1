@@ -32,14 +32,18 @@ uint16_t Read_ADC(ADC_HandleTypeDef *hadc, uint32_t channel)
 /* Function to get IR sensor readings */
 void Get_IR_Readings(void)
 {
-    HAL_GPIO_WritePin(LF_EMMITER_GPIO_Port, LF_EMMITER_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(D_EMMITER_GPIO_Port, D_EMMITER_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(RF_EMMITER_GPIO_Port, RF_EMMITER_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(LF_EMMITER_GPIO_Port, LF_EMMITER_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(D_EMMITER_GPIO_Port, D_EMMITER_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(RF_EMMITER_GPIO_Port, RF_EMMITER_Pin, GPIO_PIN_SET);
     // Read the values from each IR sensor
     LF_reading = Read_ADC(&hadc1, ADC_CHANNEL_0);  // Left Front sensor
     LD_reading = Read_ADC(&hadc1, ADC_CHANNEL_1);  // Left Down sensor
     RD_reading = Read_ADC(&hadc2, ADC_CHANNEL_4);  // Right Down sensor
     RF_reading = Read_ADC(&hadc2, ADC_CHANNEL_5);  // Right Front sensor
+    HAL_Delay(2);
+    HAL_GPIO_WritePin(LF_EMMITER_GPIO_Port, LF_EMMITER_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(D_EMMITER_GPIO_Port, D_EMMITER_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(RF_EMMITER_GPIO_Port, RF_EMMITER_Pin, GPIO_PIN_RESET);
 
 }
 
@@ -49,7 +53,7 @@ void Calibrate_IR_Sensors(void)
 {
 	HAL_Delay(1000);
 	buzzer_tone_0();
-    for (int i = 0; i < 2000; i++)
+    for (int i = 0; i < 1000; i++)
     {
         // Set the emitters on
         HAL_GPIO_WritePin(LF_EMMITER_GPIO_Port, LF_EMMITER_Pin, GPIO_PIN_SET);
