@@ -63,3 +63,8 @@ To get started with Mico's firmware and hardware setup:
    git clone https://github.com/maduwanthasl/Mico-Micromouse_V1.git
    cd Mico-Micromouse_V1
 
+
+## 🙏 Acknowledgments
+This project was made possible thanks to the support and resources available through the open-source and embedded systems community. Special thanks to [mention any specific libraries, mentors, or guides you found helpful].
+
+Enjoy exploring Mico’s journey through maze-solving and micromouse challenges! Contributions and feedback are welcome.
