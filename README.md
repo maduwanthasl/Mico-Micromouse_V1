@@ -59,4 +59,4 @@ To get started with Mico's firmware and hardware setup:
    ```bash
    git clone https://github.com/maduwanthasl/Mico-Micromouse_V1.git
    cd Mico-Micromouse_V1
-  ```
+
