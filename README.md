@@ -6,11 +6,12 @@ Welcome to the repository for **Mico**, my custom-designed micromouse robot! Thi
 
 1. [Project Overview](#project-overview)
 2. [Hardware Components](#hardware-components)
-3. [PCB Design](#pcb-design)
-4. [Microcontroller - STM32 Blue Pill](#microcontroller---stm32-blue-pill)
-5. [Firmware Development](#firmware-development)
-6. [Getting Started](#getting-started)
-7. [Acknowledgments](#acknowledgments)
+3. [Component Comparison](#component-comparison)
+4. [PCB Design](#pcb-design)
+5. [Microcontroller - STM32 Blue Pill](#microcontroller---stm32-blue-pill)
+6. [Firmware Development](#firmware-development)
+7. [Getting Started](#getting-started)
+8. [Acknowledgments](#acknowledgments)
 
 ## 📝 Project Overview
 
@@ -26,6 +27,8 @@ Mico is built using carefully chosen components to maximize performance and reli
 - **Sensors**: Infrared emitters and receivers for maze sensing
 - **Motors**: Precision motors with encoders for accurate movement
 - **Additional Components**: Coupling capacitors (100nF, 100V) for noise reduction, etc.
+
+## Component Comparison
 
 ## 🖥️ PCB Design
 
