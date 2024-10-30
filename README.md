@@ -28,7 +28,19 @@ Mico is built using carefully chosen components to maximize performance and reli
 - **Motors**: Precision motors with encoders for accurate movement
 - **Additional Components**: Coupling capacitors (100nF, 100V) for noise reduction, etc.
 
-## Component Comparison
+## 🔍 Component Comparison
+
+| **Component**        | **Option 1**                    | **Option 2**                     | **Notes**                                                                                     |
+|----------------------|---------------------------------|----------------------------------|-----------------------------------------------------------------------------------------------|
+| **Microcontroller**  | STM32                           | ATmega328P                       | STM32 chosen for better performance and support for PWM control                              |
+| **Motor Type**       | N20 Motor with Encoder          | Coreless Motor with Custom Encoder | N20 with encoder used due to budget constraints and time                                     |
+| **Battery**          | 7.4V LiPo (Downconversion)      | 3.7V LiPo (Upconversion)         | Upconversion method preferred for weight reduction                                           |
+| **IR Sensors**       | TOF Sensors                     | IR Emitter and Phototransistor   | IR Emitter chosen; TOF needs multiplexer, increasing response time                           |
+| **Power Regulator**  | AM1117 (3.3V)                   | MT3608 Step-Up Converter         | MT3608 chosen for efficient power conversion                                                 |
+| **Motor Driver**     | TB6612FNG                       | L298N                            | TB6612FNG preferred for compact design and compatibility                                     |
+
+_Table 1: Comparison of Key Components for MICO Micromouse Robot_
+
 
 ## 🖥️ PCB Design
 
