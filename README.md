@@ -77,6 +77,6 @@ To get started with Mico's firmware and hardware setup:
 
 
 ## 🙏 Acknowledgments
-This project was made possible thanks to the support and resources available through the open-source and embedded systems community. Special thanks to [mention any specific libraries, mentors, or guides you found helpful].
+This project was made possible thanks to the support and resources available through the open-source and embedded systems community.
 
 Enjoy exploring Mico’s journey through maze-solving and micromouse challenges! Contributions and feedback are welcome.
